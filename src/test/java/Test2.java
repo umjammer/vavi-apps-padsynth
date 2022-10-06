@@ -7,12 +7,14 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.Arrays;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import vavi.apps.padsynth.MidiUtil;
 import vavix.rococoa.gesture.GestureLibrary;
 
 
@@ -52,5 +54,13 @@ class Test2 {
         frame.setLocationRelativeTo(null);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    @Test
+    void test2() throws Exception {
+        System.err.println("---- input ----");
+        Arrays.stream(MidiUtil.getInputDevices()).forEach(System.err::println);
+        System.err.println("---- output ----");
+        Arrays.stream(MidiUtil.getOutputDevices()).forEach(System.err::println);
     }
 }
