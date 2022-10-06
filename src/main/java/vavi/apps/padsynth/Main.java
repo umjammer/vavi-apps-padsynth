@@ -5,21 +5,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequencer;
+import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
 
 import com.sun.media.sound.ModelAbstractOscillator;
+import vavi.sound.midi.MidiUtil;
+import vavi.util.Debug;
 import vavix.rococoa.moultitouch.MTTouch;
 import vavix.rococoa.moultitouch.MultitouchManager;
 
@@ -37,43 +37,73 @@ public class Main {
      */
     public static void main(String[] args) throws Exception {
 
-        Synthesizer synthesizer = MidiSystem.getSynthesizer();
-        synthesizer.open();
-        synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank());
-        synthesizer.loadAllInstruments(new MyOscillator());
-        Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.open();
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
-        sequencer.start();
-
-
-
         Main app = new Main();
         app.gui();
-        MultitouchManager multitouchManager = MultitouchManager.getInstance();
-        multitouchManager.addListener(e -> {
-            synchronized (app.touches) {
-//System.out.printf("%d%n", e.getTouches().length);
-                app.touches.clear();
-                app.touches.addAll(Arrays.asList(e.getTouches()));
-            }
-            app.panel.repaint();
-        });
 
-        System.out.println();
-System.out.println("Is active, press enter to stop");
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        br.readLine();
-System.out.println("Stop...");
+        Runtime.getRuntime().addShutdownHook(new Thread(app::close));
+    }
+
+    void close() {
+        noteOff();
 
         multitouchManager.stop();
 
-
-
-        sequencer.stop();
-        sequencer.close();
         synthesizer.close();
     }
+
+    void noteOn() {
+        try {
+            ShortMessage message = new ShortMessage();
+            message.setMessage(ShortMessage.NOTE_ON, 0, 60, 127);
+            receiver.send(message, -1);
+Debug.println("note on");
+            noteOn = true;
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void noteOff() {
+        try {
+            ShortMessage message = new ShortMessage();
+            message.setMessage(ShortMessage.NOTE_OFF, 0, 60, 0);
+            receiver.send(message, -1);
+Debug.println("note off");
+            noteOn = false;
+        } catch (InvalidMidiDataException e) {
+            e.printStackTrace();
+        }
+    }
+
+    Main() throws Exception {
+        MyOscillator.app = this; // hideous
+
+        synthesizer = MidiSystem.getSynthesizer();
+        synthesizer.open();
+        synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank());
+        synthesizer.loadAllInstruments(new MyOscillator());
+
+        receiver = synthesizer.getReceiver();
+        MidiUtil.volume(receiver, 0.3f);
+
+        multitouchManager = MultitouchManager.getInstance();
+        multitouchManager.addListener(e -> {
+            synchronized (touches) {
+//System.out.printf("%d%n", e.getTouches().length);
+                touches.clear();
+                touches.addAll(Arrays.asList(e.getTouches()));
+            }
+            panel.repaint();
+        });
+    }
+
+    MultitouchManager multitouchManager;
+
+    boolean noteOn;
+    int padX;
+    int padY;
+    Synthesizer synthesizer;
+    Receiver receiver;
 
     JPanel panel;
     final List<MTTouch> touches = new ArrayList<>();
@@ -97,18 +127,23 @@ System.out.println("Stop...");
                         g.setColor(Color.black);
                         g.drawString(String.valueOf(touch.fingerId), x + 2 * r , y + 2 * r );
 //System.out.printf("%d, %d, %d\t%s%n", touch.identifier, x, y, touch);
+                        if (!noteOn) {
+                            noteOn();
+                        }
+                        padX = x;
+                        padY = y;
+                        break;
+                    }
+                    if (touches.size() == 0) {
+                        if (noteOn) {
+                            noteOff();
+                        }
                     }
                 }
             }
         };
         panel.setPreferredSize(new Dimension(1600, 1200));
         panel.setLayout(new BorderLayout());
-
-        JPanel tool = new JPanel();
-        tool.setLayout(new GridLayout(3, 2));
-
-        JToolBar bar = new JToolBar();
-
 
         frame.setContentPane(panel);
         frame.setTitle("PadSynth");
@@ -117,27 +152,37 @@ System.out.println("Stop...");
         frame.setVisible(true);
     }
 
-    static class MyOscillator extends ModelAbstractOscillator {
+    public static class MyOscillator extends ModelAbstractOscillator {
         double ix = 0;
         double last_ix_step = -1;
-
+        static Main app; // default constructor is needed by inside
         public int read(float[][] buffers, int offset, int len) throws IOException {
 
             // Grab channel 0 buffer from buffers
             float[] buffer = buffers[0];
 
+            //
+            float gain = 1 - (((float) app.padY / app.panel.getHeight()) * 100) / 100;
+Debug.println("gain: " + gain);
+
+            // getPitch() returns midi cent (midi cent is midi note number x 100)
+            // midi note number = 0 ~ 127, center c is 60
+//            float pitch = getPitch();
+            float pitch = (((float) app.padX / app.panel.getWidth()) * 36 + 42) * 100;
+Debug.println("pitch: " + pitch);
+
             // Calculate ix step so sin oscillirator is tuned so 6900 cents is 440 hz
             double target_ix_step =
-                    Math.exp((getPitch() - 6900) * (Math.log(2.0) / 1200.0))
+                    Math.exp((pitch - 6900) * (Math.log(2.0) / 1200.0))
                             * (440 / getSampleRate()) * (Math.PI * 2);
             double ix_step = last_ix_step;
             if (ix_step == -1) ix_step = target_ix_step;
             double ix_step_step = (target_ix_step - ix_step) / len;
 
             // Simple FM synthesizer implementation
-            int endoffset = offset + len;
-            for (int i = offset; i < endoffset; i++) {
-                buffer[i] = (float) Math.sin(ix + Math.sin(ix * 3));
+            int endOffset = offset + len;
+            for (int i = offset; i < endOffset; i++) {
+                buffer[i] = (float) Math.sin(ix + Math.sin(ix * 3)) * gain;
                 ix += ix_step;
                 // ix_step_step is used for
                 // smooth pitch changes
