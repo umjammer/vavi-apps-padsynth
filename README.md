@@ -7,6 +7,8 @@
 
 Otamatone Emulator
 
+![image](https://user-images.githubusercontent.com/493908/195970514-196a5f26-f759-4d8e-8134-42d97fc08226.png)
+
 ## References
 
  * https://github.com/jeffkaufman/trackpad_synth
