@@ -17,7 +17,7 @@
  * along with Rococoa.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package vavix.rococoa.moultitouch;
+package vavix.rococoa.multitouch;
 
 import java.util.ArrayList;
 import java.util.Collections;

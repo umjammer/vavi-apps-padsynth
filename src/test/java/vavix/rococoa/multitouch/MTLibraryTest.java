@@ -4,12 +4,10 @@
  * Programmed by Naohide Sano
  */
 
-package vavix.rococoa.moultitouch;
+package vavix.rococoa.multitouch;
 
 import java.util.List;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;

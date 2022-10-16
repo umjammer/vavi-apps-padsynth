@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package vavix.rococoa.moultitouch;
+package vavix.rococoa.multitouch;
 
 import java.util.Arrays;
 import java.util.List;

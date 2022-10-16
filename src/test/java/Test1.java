@@ -2,18 +2,14 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JToolBar;
 
-import vavix.rococoa.moultitouch.MTTouch;
-import vavix.rococoa.moultitouch.MultitouchManager;
+import vavix.rococoa.multitouch.MTTouch;
+import vavix.rococoa.multitouch.MultitouchManager;
 
 
 /**

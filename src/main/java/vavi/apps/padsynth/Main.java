@@ -20,8 +20,8 @@ import javax.swing.JPanel;
 import com.sun.media.sound.ModelAbstractOscillator;
 import vavi.sound.midi.MidiUtil;
 import vavi.util.Debug;
-import vavix.rococoa.moultitouch.MTTouch;
-import vavix.rococoa.moultitouch.MultitouchManager;
+import vavix.rococoa.multitouch.MTTouch;
+import vavix.rococoa.multitouch.MultitouchManager;
 
 
 /**
