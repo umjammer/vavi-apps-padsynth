@@ -14,14 +14,14 @@ import com.sun.jna.Pointer;
 import org.rococoa.cocoa.CFIndex;
 import org.rococoa.cocoa.appkit.AppKitLibrary;
 import org.rococoa.cocoa.appkit.NSEvent;
-import org.rococoa.cocoa.coregraphics.CGLibrary;
+import org.rococoa.cocoa.coregraphics.CoreGraphicsLibrary;
 import org.rococoa.cocoa.foundation.NSPoint;
 import vavi.util.Debug;
 
-import static org.rococoa.cocoa.coregraphics.CGLibrary.kCGEventMaskForAllEvents;
-import static org.rococoa.cocoa.coregraphics.CGLibrary.kCGEventTapOptionListenOnly;
-import static org.rococoa.cocoa.coregraphics.CGLibrary.kCGHIDEventTap;
-import static org.rococoa.cocoa.coregraphics.CGLibrary.kCGHeadInsertEventTap;
+import static org.rococoa.cocoa.coregraphics.CoreGraphicsLibrary.kCGEventMaskForAllEvents;
+import static org.rococoa.cocoa.coregraphics.CoreGraphicsLibrary.kCGEventTapOptionListenOnly;
+import static org.rococoa.cocoa.coregraphics.CoreGraphicsLibrary.kCGHIDEventTap;
+import static org.rococoa.cocoa.coregraphics.CoreGraphicsLibrary.kCGHeadInsertEventTap;
 import static org.rococoa.cocoa.foundation.FoundationKitFunctions.kCFRunLoopCommonModes;
 import static org.rococoa.cocoa.foundation.FoundationKitFunctions.library;
 
@@ -127,7 +127,7 @@ Debug.printf("%d, %s%n", event.type(), phase);
 
     private void start() {
 Debug.printf("eventMask: %d, %d, %d, %16x", kCGHIDEventTap, kCGHeadInsertEventTap, kCGEventTapOptionListenOnly, kCGEventMaskForAllEvents);
-        eventTap = CGLibrary.library.CGEventTapCreate(
+        eventTap = CoreGraphicsLibrary.library.CGEventTapCreate(
                 kCGHIDEventTap,
                 kCGHeadInsertEventTap,
                 kCGEventTapOptionListenOnly,
@@ -138,7 +138,7 @@ Debug.println("eventTap: " + eventTap);
         Pointer runLoopSource = library.CFMachPortCreateRunLoopSource(null, eventTap, CFIndex.valueOf(0));
 Debug.println("runLoopSource: " + runLoopSource);
         library.CFRunLoopAddSource(library.CFRunLoopGetCurrent(), runLoopSource, kCFRunLoopCommonModes);
-        CGLibrary.library.CGEventTapEnable(eventTap, true);
+        CoreGraphicsLibrary.library.CGEventTapEnable(eventTap, true);
         runLoop = library.CFRunLoopGetCurrent();
 Debug.println("runLoop: " + runLoop);
         library.CFRunLoopRun();
@@ -147,7 +147,7 @@ Debug.println("[rococoa] Starting Gesture Listener.");
 
     private void stop() {
         library.CFRunLoopStop(runLoop);
-        CGLibrary.library.CGEventTapEnable(eventTap, false);
+        CoreGraphicsLibrary.library.CGEventTapEnable(eventTap, false);
 System.err.println("[rococoa] Stopping Gesture Listener.");
     }
 }
