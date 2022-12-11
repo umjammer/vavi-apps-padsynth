@@ -1,4 +1,4 @@
-[![Release](https://jitpack.io/v/umjammer/vavi-apps-padsynth.svg)](https://jitpack.io/#umjammer/vavi-apps-padsynth)
+[![GitHub Packages](https://github.com/umjammer/vavi-apps-padsynth/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/umjammer?tab=packages&repo_name=vavi-apps-padsynth)
 [![Java CI](https://github.com/umjammer/vavi-apps-padsynth/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-apps-padsynth/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-apps-padsynth/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-apps-padsynth/actions/workflows/codeql-analysis.yml)
 ![Java](https://img.shields.io/badge/Java-8-b07219)
